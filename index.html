@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vetoquinol — Procurement Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7;--surface:#ffffff;--surface2:#f4f5f7;--surface3:#eaecf0;
+  --border:#d0d7de;--border2:#e8ecf0;
+  --text:#1a1a2e;--text2:#57606a;--text3:#8c959f;
+  --green:#1a7f37;--green2:#2ea043;--green-bg:rgba(26,127,55,.07);
+  --red:#cf222e;--red2:#a40e26;--red-bg:rgba(207,34,46,.07);
+  --orange:#bc4c00;--orange-bg:rgba(188,76,0,.07);
+  --blue:#0969da;--blue-bg:rgba(9,105,218,.07);
+  --purple:#6639ba;--purple-bg:rgba(102,57,186,.07);
+  --yellow:#9a6700;--yellow-bg:rgba(154,103,0,.07);
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  --radius:8px;--radius-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+#shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+#sb{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-brand{padding:16px 14px 12px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px}
+.sb-logo{width:32px;height:32px;background:linear-gradient(135deg,#2ea043,#39d353);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(57,211,83,.3)}
+.sb-logo svg{width:18px;height:18px;fill:#fff}
+.sb-co{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.3px}
+.sb-sub{font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.sb-nav{padding:10px 8px;flex:1;overflow-y:auto}
+.sb-sect{font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:10px 8px 4px;margin-top:4px}
+.sbi{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:1px;transition:all .15s;user-select:none;position:relative}
+.sbi:hover{background:var(--surface3);color:var(--text)}
+.sbi.active{background:var(--green-bg);color:var(--green);font-weight:600}
+.sbi svg{width:15px;height:15px;flex-shrink:0;stroke-width:1.8}
+.sbi .badge{margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;background:var(--red-bg);color:var(--red)}
+.sbi .badge.warn{background:var(--orange-bg);color:var(--orange)}
+.sbi .badge.ok{background:var(--green-bg);color:var(--green)}
+.sb-footer{padding:10px 12px;border-top:1px solid var(--border2);font-size:9px;color:var(--text3)}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;margin-right:4px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── MAIN ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.mhdr{padding:12px 20px 10px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.mhdr-left h1{font-size:16px;font-weight:700;color:var(--text);margin-bottom:1px}
+.mhdr-left p{font-size:10px;color:var(--text3)}
+.mhdr-right{display:flex;align-items:center;gap:8px}
+.hdr-badge{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:600;border:1px solid}
+.hdr-badge.critical{background:var(--red-bg);color:var(--red);border-color:var(--red2)}
+.hdr-badge.date{background:var(--surface3);color:var(--text2);border-color:var(--border)}
+.page{display:none;flex:1;overflow:hidden;min-height:0}
+.page.active{display:flex}
+.scroll{overflow-y:auto;padding:16px 18px;width:100%}
+
+/* ── BREAKING NEWS ── */
+.bn-ticker{background:var(--surface2);border-bottom:1px solid var(--border);padding:6px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.bn-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);white-space:nowrap;padding:2px 7px;border:1px solid var(--border);border-radius:4px}
+.bn-ticker-text{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.bn-ticker-text b{color:var(--text)}
+.bn-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px}
+.bn-main{display:flex;flex-direction:column;gap:8px}
+.bn-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.bn-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.bn-card.critical::before{background:var(--red)}
+.bn-card.high::before{background:var(--orange)}
+.bn-card.medium::before{background:var(--yellow)}
+.bn-card.positive::before{background:var(--green)}
+.bn-card:hover{border-color:var(--border2);box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.bn-card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.bn-card-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.bn-card-meta{flex:1}
+.bn-card-date{font-size:9px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px;color:var(--text3)}
+.bn-card-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:4px}
+.bn-card-sub{font-size:11px;color:var(--text2);line-height:1.5}
+.bn-card-impacts{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.bn-impact{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:500;border:1px solid var(--border);background:var(--surface2);color:var(--text2)}
+.bn-impact.up{color:var(--red)}
+.bn-impact.dn{color:var(--green)}
+.bn-impact.neu{color:var(--orange)}
+.bn-side{display:flex;flex-direction:column;gap:8px}
+.bn-side-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:11px}
+.bn-side-title{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.bn-side-title svg{width:12px;height:12px}
+.bn-signal-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border2);font-size:11px}
+.bn-signal-row:last-child{border:none}
+.bn-signal-name{color:var(--text2)}
+.bn-signal-val{font-weight:600;font-family:var(--mono);font-size:10px;color:var(--text)}
+.bn-signal-val.up{color:var(--red)}
+.bn-signal-val.dn{color:var(--green)}
+.bn-signal-val.neu{color:var(--orange)}
+.bn-alert-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px}
+.bn-alert-title{font-size:10px;font-weight:700;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.bn-alert-body{font-size:10px;color:var(--text2);line-height:1.6}
+.hormuz-bar{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.hormuz-icon{font-size:20px;flex-shrink:0}
+.hormuz-text{flex:1}
+.hormuz-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
+.hormuz-body{font-size:11px;color:var(--text2);line-height:1.5}
+.hormuz-prob{display:inline-flex;align-items:center;gap:4px;background:var(--surface3);color:var(--red);border:1px solid var(--border);padding:2px 9px;border-radius:10px;font-size:9px;font-weight:700;margin-right:6px}
+
+/* ── GEO MAP ── */
+#pg-geo{gap:0}
+#geo-left{flex:1;display:flex;flex-direction:column;gap:10px;padding:14px;overflow-y:auto;min-width:0}
+.map-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;position:relative;min-height:320px;flex:1}
+#wmap{width:100%;height:100%;display:block}
+.map-leg{position:absolute;bottom:12px;left:12px;background:rgba(13,17,23,.92);border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;font-size:10px;backdrop-filter:blur(4px)}
+.map-leg b{display:block;font-size:8px;font-weight:700;letter-spacing:.8px;color:var(--text3);margin-bottom:5px;text-transform:uppercase}
+.lr{display:flex;align-items:center;gap:6px;margin-bottom:3px;color:var(--text2);font-size:10px}
+.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mz{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:2px}
+.zb{width:24px;height:24px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+.zb:hover{background:var(--surface3);color:var(--text)}
+.geo-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex-shrink:0}
+.kpi{background:var(--surface);border-radius:var(--radius);padding:10px 12px;border:1px solid var(--border)}
+.kl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;font-weight:600}
+.kv{font-size:22px;font-weight:700;font-family:var(--mono)}.ks{font-size:9px;color:var(--text3);margin-top:1px}
+
+#geo-right{width:340px;min-width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.rph{padding:11px 14px 8px;border-bottom:1px solid var(--border2);font-size:11px;font-weight:700;color:var(--text);position:sticky;top:0;background:var(--surface);z-index:2;display:flex;align-items:center;gap:6px}
+.rcard{border-radius:10px;margin:7px;padding:12px;border:1px solid;cursor:pointer;transition:all .15s;background:var(--surface2)}
+.rcard.high{border-color:rgba(248,81,73,.3)}
+.rcard.medium{border-color:rgba(240,136,62,.3)}
+.rcard.low{border-color:rgba(57,211,83,.2)}
+.rcard:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.rcard.selected.high{border-color:var(--red);box-shadow:0 0 0 1px rgba(248,81,73,.2)}
+.rcard.selected.medium{border-color:var(--orange);box-shadow:0 0 0 1px rgba(240,136,62,.2)}
+.rcard.selected.low{border-color:var(--green);box-shadow:0 0 0 1px rgba(57,211,83,.15)}
+.rch{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+.rci{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rci.high{background:rgba(248,81,73,.15)}.rci.medium{background:rgba(240,136,62,.15)}.rci.low{background:rgba(57,211,83,.1)}
+.rci svg{width:15px;height:15px}
+.rct{font-size:12px;font-weight:700;color:var(--text)}
+.rcl{font-size:9px;font-weight:700;margin-top:1px}
+.rcl.high{color:var(--red)}.rcl.medium{color:var(--orange)}.rcl.low{color:var(--green)}
+.rcd{font-size:10px;color:var(--text2);margin-bottom:7px;line-height:1.4}
+.rcs{margin-bottom:5px}
+.rcsl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;font-weight:600}
+.cpills{display:flex;flex-wrap:wrap;gap:3px}
+.cp{background:var(--surface3);color:var(--text2);font-size:9px;padding:1px 6px;border-radius:8px;border:1px solid var(--border)}
+.tags{display:flex;flex-wrap:wrap;gap:3px}
+.tag{padding:2px 7px;border-radius:4px;font-size:9px;font-weight:600;border:1px solid}
+.te{background:rgba(248,81,73,.1);color:var(--red);border-color:rgba(248,81,73,.2)}
+.tl{background:rgba(57,211,83,.1);color:var(--green);border-color:rgba(57,211,83,.2)}
+.ta{background:rgba(240,136,62,.1);color:var(--orange);border-color:rgba(240,136,62,.2)}
+.tm{background:rgba(88,166,255,.1);color:var(--blue);border-color:rgba(88,166,255,.2)}
+.tc{background:rgba(188,140,255,.1);color:var(--purple);border-color:rgba(188,140,255,.2)}
+.tp{background:rgba(248,81,73,.1);color:var(--red);border-color:rgba(248,81,73,.15)}
+.tt{background:rgba(227,179,65,.1);color:var(--yellow);border-color:rgba(227,179,65,.2)}
+.sc-panel{margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);display:none}
+.rcard.selected .sc-panel{display:block}
+.sc-panel-title{font-size:8px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.sc-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:5px}
+.sc-box{border-radius:6px;padding:7px;text-align:center;border:1px solid}
+.sc-box.opt{background:rgba(57,211,83,.08);border-color:rgba(57,211,83,.2)}.sc-box.bas{background:rgba(88,166,255,.08);border-color:rgba(88,166,255,.2)}.sc-box.pes{background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.2)}
+.sc-box .sv{font-size:13px;font-weight:700;font-family:var(--mono)}.sc-box.opt .sv{color:var(--green)}.sc-box.bas .sv{color:var(--blue)}.sc-box.pes .sv{color:var(--red)}
+.sc-box .sl{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+.sc-box.opt .sl{color:var(--green)}.sc-box.bas .sl{color:var(--blue)}.sc-box.pes .sl{color:var(--red)}
+.sc-box .sd{font-size:8px;color:var(--text3);margin-top:2px;line-height:1.3}
+.sc-impacts{margin-top:5px}
+.sc-imp-row{display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px solid var(--border2);color:var(--text2);align-items:center;gap:6px}
+.sc-imp-row:last-child{border:none}
+.sc-imp-row span:last-child{font-weight:700;font-family:var(--mono);font-size:9px;white-space:nowrap}
+.up{color:var(--red)}.dn{color:var(--green)}.md{color:var(--orange)}
+
+/* ── PMI ── */
+.pmi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:14px}
+.pmic{background:var(--surface);border-radius:var(--radius);padding:11px;border:1px solid}
+.pmic.exp{border-color:rgba(57,211,83,.25);background:rgba(57,211,83,.03)}
+.pmic.neu{border-color:rgba(240,136,62,.25);background:rgba(240,136,62,.03)}
+.pmic.con{border-color:rgba(248,81,73,.25);background:rgba(248,81,73,.03)}
+.pmic-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
+.pmif{font-size:18px}.pmiv{font-size:20px;font-weight:700;font-family:var(--mono)}
+.pmiv.exp{color:var(--green)}.pmiv.neu{color:var(--orange)}.pmiv.con{color:var(--red)}
+.pmin{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
+.pmit{font-size:9px;font-weight:600;margin-bottom:4px}
+.pmi-desc{font-size:9px;line-height:1.4;border-top:1px solid var(--border2);padding-top:4px;margin-top:2px;color:var(--text2)}
+.pmis{font-size:8px;color:var(--text3);margin-top:4px;font-family:var(--mono)}
+
+/* ── COST ── */
+.ctw{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:auto;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{padding:7px 9px;text-align:right;color:var(--text2);font-weight:600;font-size:8px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;background:var(--surface2);white-space:nowrap}
+th:first-child{text-align:left;min-width:110px}
+td{padding:6px 9px;text-align:right;border-bottom:1px solid var(--border2);white-space:nowrap;color:var(--text2)}
+td:first-child{text-align:left;color:var(--text);font-weight:500}
+tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+tr:hover td{background:rgba(57,211,83,.03)}
+.vp{color:var(--red);font-weight:700}.vn{color:var(--green);font-weight:600}.vm{color:var(--text3)}
+.vf{color:var(--blue);font-weight:700;font-style:italic}.vf27{color:var(--purple);font-weight:700;font-style:italic}
+.snote{font-size:9px;color:var(--text3);padding:6px 10px;font-style:italic}
+.chart-card{background:var(--surface);border-radius:var(--radius-lg);padding:13px;border:1px solid var(--border);margin-bottom:12px}
+.chart-card h3{font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px}
+.chart-card h4{font-size:10px;font-weight:600;color:var(--text2);margin:9px 0 5px}
+.leg-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
+.leg-it{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text2)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cw{position:relative;width:100%}
+select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 11px;border-radius:var(--radius);font-size:12px;cursor:pointer;outline:none;font-family:var(--font)}
+select:hover{border-color:var(--text3)}
+.page-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.page-sub{font-size:10px;color:var(--text3);margin-bottom:12px}
+.pct-up{color:var(--red);font-size:9px;font-weight:600}
+.pct-dn{color:var(--green);font-size:9px;font-weight:600}
+.pct-nt{color:var(--text3);font-size:9px}
+
+/* ── COUNTRY ── */
+.country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:10px}
+.cc{background:var(--surface);border-radius:var(--radius-lg);padding:12px;border:1px solid var(--border)}
+.cc-top{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.cc-flag{font-size:18px}.cc-name{font-size:12px;font-weight:700;color:var(--text)}.cc-region{font-size:8px;color:var(--text3)}
+.cc-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:7px}
+.cc-stat{background:var(--surface2);border-radius:6px;padding:6px 8px;border:1px solid var(--border2)}
+.cc-stat .v{font-size:12px;font-weight:700;font-family:var(--mono)}.cc-stat .l{font-size:8px;color:var(--text3);margin-top:1px;text-transform:uppercase;letter-spacing:.3px}
+.cc-inf-section{border-top:1px solid var(--border2);padding-top:7px;margin-top:2px}
+.cc-inf-title{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:4px}
+.cc-inf-row{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--text2);padding:2px 0}
+
+/* ── LIVE UI ── */
+.upd-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;margin-bottom:8px;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border2)}
+.rfr-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);font-size:10px;font-weight:500;color:var(--text2);cursor:pointer;font-family:var(--font);transition:border-color .15s}
+.rfr-btn:hover{border-color:var(--green);color:var(--green)}
+.rfr-btn.spin svg{animation:_sp .7s linear infinite}
+@keyframes _sp{to{transform:rotate(360deg)}}
+.live-pill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:var(--green2)}
+.live-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.cc-trend{display:flex;align-items:center;gap:3px;font-size:9px;font-weight:600}
+.trend-up{color:var(--red)}.trend-dn{color:var(--green)}.trend-fl{color:var(--orange)}
+
+/* ── FORECAST ── */
+.fc-hero{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.fc-year-card{border-radius:var(--radius-lg);padding:14px;border:1px solid}
+.fc-year-card.y26{background:rgba(88,166,255,.05);border-color:rgba(88,166,255,.3)}
+.fc-year-card.y27{background:rgba(188,140,255,.05);border-color:rgba(188,140,255,.3)}
+.fc-year-lbl{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.fc-year-lbl.y26{color:var(--blue)}.fc-year-lbl.y27{color:var(--purple)}
+.fc-year-val{font-size:32px;font-weight:300;line-height:1;margin-bottom:3px;font-family:var(--mono)}
+.fc-year-val.y26{color:var(--blue)}.fc-year-val.y27{color:var(--purple)}
+.fc-year-sub{font-size:10px;color:var(--text3);margin-bottom:9px}
+.sc3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.sp{border-radius:6px;padding:7px;text-align:center;border:1px solid}
+.sp.opt{background:rgba(57,211,83,.08);border-color:rgba(57,211,83,.2)}.sp.bas{background:rgba(88,166,255,.08);border-color:rgba(88,166,255,.2)}.sp.pes{background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.2)}
+.sp .sv{font-size:13px;font-weight:700;font-family:var(--mono)}.sp .sl{font-size:8px;font-weight:700;text-transform:uppercase}
+.sp.opt .sv,.sp.opt .sl{color:var(--green)}.sp.bas .sv,.sp.bas .sl{color:var(--blue)}.sp.pes .sv,.sp.pes .sl{color:var(--red)}
+.sp .sd{font-size:8px;color:var(--text3);margin-top:2px;line-height:1.3}
+.alert-bar{background:var(--orange-bg);border:1px solid rgba(240,136,62,.3);border-radius:var(--radius);padding:9px 12px;margin-bottom:10px;font-size:10px;color:var(--text2);display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.fc-table-wrap{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:auto;margin-bottom:10px}
+.fth{background:var(--surface2);color:var(--text2)}
+.fth26{background:rgba(88,166,255,.1);color:var(--blue)}
+.fth27{background:rgba(188,140,255,.1);color:var(--purple)}
+
+/* ── SOURCES ── */
+.src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.src-card{background:var(--surface);border-radius:var(--radius);padding:12px;border:1px solid var(--border)}
+.src-card h3{font-size:10px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.src-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border2);font-size:10px;color:var(--text2)}
+.src-item:last-child{border:none}
+.src-item .sl{color:var(--text3);text-align:right;max-width:58%}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+/* ── GEO IMPACT CHIPS ── */
+.geo-impact-band{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.geo-impact-label{font-size:8px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
+.geo-chip{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:600;border:1px solid;cursor:default}
+.geo-chip.red{background:var(--red-bg);color:var(--red);border-color:rgba(248,81,73,.3)}
+.geo-chip.orange{background:var(--orange-bg);color:var(--orange);border-color:rgba(240,136,62,.3)}
+.geo-chip.blue{background:var(--blue-bg);color:var(--blue);border-color:rgba(88,166,255,.3)}
+
+/* separator */
+.section-sep{height:1px;background:var(--border2);margin:14px 0}
+</style>
+</head>
+<body>
+<div id="shell">
+
+<!-- ══ SIDEBAR ══ -->
+<div id="sb">
+  <div class="sb-brand">
+    <div class="sb-logo"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 22H5.71C7.87 16.33 10.44 14 17 13v4l5-5-5-5v4z"/></svg></div>
+    <div><div class="sb-co">Vetoquinol</div><div class="sb-sub">Procurement Intel</div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sect">Live Intelligence</div>
+    <div class="sbi active" onclick="nav('news',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      Breaking News
+      
+    </div>
+    <div class="sbi" onclick="nav('geo',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"/></svg>
+      Geopolitical Map
+    </div>
+    <div class="sb-sect">Market Data</div>
+    <div class="sbi" onclick="nav('pmi',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      PMI Manufacturing
+      <span class="badge warn">APR 2026</span>
+    </div>
+    <div class="sbi" onclick="nav('cost',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Cost Indices
+    </div>
+    <div class="sb-sect">Planning</div>
+    <div class="sb-sect">Reference</div>
+    <div class="sbi" onclick="nav('src',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      Sources & Protocol
+    </div>
+  </nav>
+  <div class="sb-footer"><span class="live-pill" style="font-size:9px">Auto-updating</span><div style="margin-top:3px;font-size:8px;color:var(--text3)">News 6h · Geo 4h · PMI 30d</div></div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+<div class="mhdr">
+  <div class="mhdr-left">
+    <h1 id="ph">Breaking News</h1>
+    <p id="ps">Procurement-relevant geopolitical & market intelligence · Directeurs Achats · May 2026</p>
+  </div>
+  <div class="mhdr-right">
+    <div class="hdr-badge date">Hormuz disruption active</div>
+    <div class="hdr-badge date">20 May 2026</div>
+  </div>
+</div>
+
+<!-- ═══ BREAKING NEWS ═══ -->
+<div id="pg-news" class="page active">
+  <div class="scroll">
+    <div class="upd-row">
+      <span class="live-pill" style="font-size:9px">News &middot; <span id="bn-ts" style="font-family:var(--mono)">auto-refresh active</span></span>
+      <button class="rfr-btn" id="bn-btn" onclick="auRefreshNews(true)">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh now
+      </button>
+    </div>
+    <!-- Hormuz top bar -->
+    <div class="hormuz-bar">
+      <div class="hormuz-icon">🛢</div>
+      <div class="hormuz-text">
+        <div class="hormuz-title">Strait of Hormuz — Active disruption since 28 Feb 2026</div>
+        <div class="hormuz-body">
+          <span class="hormuz-prob">30–50% probability</span>
+          Brent ~$95–105/bbl · Asia-EU ocean freight +20-22% · S.Asia-EU air freight +62% · Qatar LNG force majeure · Recommended contingency reserve: <strong style="color:var(--red)">+5–8% of procurement budget</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="bn-grid">
+      <!-- LEFT: main news cards -->
+      <div class="bn-main">
+
+        <div class="bn-card critical">
+          <div class="bn-card-top">
+            <div class="bn-card-icon">⚔️</div>
+            <div class="bn-card-meta">
+              <div class="bn-card-date">Critical · Active since 28 Feb 2026</div>
+              <div class="bn-card-title">US–Israel War on Iran · Strait of Hormuz effectively closed</div>
+              <div class="bn-card-sub">US-Israeli strikes on Iran since late February. Strait of Hormuz blocked 8+ weeks. Qatar LNG force majeure — 20% of global gas supply. Gulf container shipping collapsed. Brent peaked at $120/bbl, partial stabilisation around $95–105.</div>
+            </div>
+          </div>
+          <div class="bn-card-impacts">
+            <span class="bn-impact up">🛢 Oil +55%</span>
+            <span class="bn-impact up">🚢 Freight Asia-EU +20%</span>
+            <span class="bn-impact up">✈️ Air +62%</span>
+            <span class="bn-impact up">🔥 LNG force majeure</span>
+            <span class="bn-impact up">💊 APIs +4–8 wk delay</span>
+            <span class="bn-impact up">🚛 Diesel +30%</span>
+          </div>
+        </div>
+
+        <div class="bn-card high">
+          <div class="bn-card-top">
+            <div class="bn-card-icon">🏭</div>
+            <div class="bn-card-meta">
+              <div class="bn-card-date">High · Summit concluded 14–16 May 2026</div>
+              <div class="bn-card-title">US–China Summit Beijing · Ambiguous outcomes · Tariffs not reduced</div>
+              <div class="bn-card-sub">Trump–Xi Beijing 14–16 May: <strong>no joint statement, no tariff rollback</strong>. Trump: "tariffs were not discussed". China: agreement in principle on reciprocal reductions. Concrete deals: agriculture (US beef, poultry), Boeing, rare earths (partial). Trade &amp; investment councils created. Bloomberg: "more ceremony than substance". Putin in Beijing 19–20 May post-summit.</div>
+            </div>
+          </div>
+          <div class="bn-card-impacts">
+            <span class="bn-impact up">📦 Tariffs 145% maintained</span>
+            <span class="bn-impact dn">🌾 Agri deal confirmed</span>
+            <span class="bn-impact dn">✈️ Boeing deal</span>
+            <span class="bn-impact neu">⛏ Rare earths partial</span>
+            <span class="bn-impact up">💻 Semiconductors unresolved</span>
+            <span class="bn-impact up">🇷🇺 Putin–Xi 19–20 May</span>
+          </div>
+        </div>
+
+        <div class="bn-card high">
+          <div class="bn-card-top">
+            <div class="bn-card-icon">❄️</div>
+            <div class="bn-card-meta">
+              <div class="bn-card-date">High · Year 4 · Ongoing</div>
+              <div class="bn-card-title">Russia–Ukraine · EU bans Russian LNG 18 Mar 2026</div>
+              <div class="bn-card-sub">4th year of war. EU bans Russian LNG imports from 18 March 2026 (Russia &lt;13% of EU supply vs 45% in 2021). New US/Qatar LNG capacity expected mid-2026. EU gas +24% vs Nov 2021. Poland electricity +88% vs 2021.</div>
+            </div>
+          </div>
+          <div class="bn-card-impacts">
+            <span class="bn-impact up">🔥 EU Gas +24%</span>
+            <span class="bn-impact up">⚡ EU Electricity +38%</span>
+            <span class="bn-impact up">🏭 Poland wages +6-8%</span>
+            <span class="bn-impact dn">🔜 New LNG capacity H2 2026</span>
+          </div>
+        </div>
+
+        <div class="bn-card medium">
+          <div class="bn-card-top">
+            <div class="bn-card-icon">🏝️</div>
+            <div class="bn-card-meta">
+              <div class="bn-card-date">Medium · Monitoring</div>
+              <div class="bn-card-title">Taiwan Strait · Gray Zone · Post-Summit Ambiguity</div>
+              <div class="bn-card-sub">Gray zone activities persist but no imminent escalation (Stimson Center, CFR 2026). Summit concluded May 14–16 with limited results. Structural long-term risk on APIs and semiconductors remains.</div>
+            </div>
+          </div>
+          <div class="bn-card-impacts">
+            <span class="bn-impact neu">💊 APIs +3-5% risk premium</span>
+            <span class="bn-impact dn">🤝 Critical minerals deal partial</span>
+          </div>
+        </div>
+
+        <div class="bn-card positive">
+          <div class="bn-card-top">
+            <div class="bn-card-icon">📈</div>
+            <div class="bn-card-meta">
+              <div class="bn-card-date">Positive signal · March 2026</div>
+              <div class="bn-card-title">Germany PMI 51.9 · Strongest expansion since June 2022</div>
+              <div class="bn-card-sub">German manufacturing recovery driven by defence spending and infrastructure stimulus. Best reading in 3 years. Procurement impact: EU supplier lead times may lengthen. Input cost inflation at 38-month high.</div>
+            </div>
+          </div>
+          <div class="bn-card-impacts">
+            <span class="bn-impact neu">🏭 EU supplier lead times ↑</span>
+            <span class="bn-impact dn">🇩🇪 DE recovery = procurement stabilisation</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: signals panel -->
+      <div class="bn-side">
+
+        <div class="bn-side-card">
+          <div class="bn-side-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Market Signals — May 2026
+          </div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🛢 Brent crude</span><span class="bn-signal-val up" id="sig-brent">~$109/bbl ▲70%</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🔥 TTF EU Gas</span><span class="bn-signal-val up">~€42/MWh ▲</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🚢 FBX Global</span><span class="bn-signal-val up">+18–22% ▲</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">✈️ Air S.Asia-EU</span><span class="bn-signal-val up">$4.17/kg ▲62%</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🚛 EU Diesel avg</span><span class="bn-signal-val up">+28% vs 2019</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">⚡ EU Elec avg</span><span class="bn-signal-val up">+45% vs 2019</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">💊 China APIs tariffs</span><span class="bn-signal-val up">145% — not reduced</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🇩🇪 PMI Germany</span><span class="bn-signal-val dn">51.9 ▲ EXP</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🇮🇳 PMI India</span><span class="bn-signal-val dn">53.9 EXP</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🇲🇽 PMI Mexico</span><span class="bn-signal-val up">46.3 ▼ WORST</span></div>
+        </div>
+
+        <div class="bn-side-card">
+          <div class="bn-side-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Most Exposed Categories
+          </div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🚢 Ocean Freight</span><span class="bn-signal-val up">CRITICAL</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">✈️ Air Freight</span><span class="bn-signal-val up">CRITICAL</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🛢 Energy / Oil</span><span class="bn-signal-val up">CRITICAL</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">💊 Pharma APIs</span><span class="bn-signal-val up">HIGH</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">🔥 Natural Gas</span><span class="bn-signal-val up">HIGH</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">📦 Consumables</span><span class="bn-signal-val neu">MODERATE</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">👷 Labour EU/PL</span><span class="bn-signal-val neu">MODERATE</span></div>
+          <div class="bn-signal-row"><span class="bn-signal-name">⚡ Electricity</span><span class="bn-signal-val neu">MODERATE</span></div>
+        </div>
+
+        <div class="bn-alert-box">
+          <div class="bn-alert-title">Recommended actions</div>
+          <div class="bn-alert-body">
+            Provision <strong>+5–8% contingency</strong> on 2026–2027 budget.<br>
+            Pre-position API stock &gt;8 weeks (Gulf delays).<br>
+            Renegotiate ocean freight contracts Q3 2026.<br>
+            Monitor US-China councils for API tariff outcomes.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GEO ═══ -->
+<div id="pg-geo" class="page">
+  <div id="geo-left">
+    <div class="map-wrap">
+      <svg id="wmap" viewBox="0 0 960 500" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="map-leg">
+        <b>Risk Level</b>
+        <div class="lr"><div class="ld" style="background:#f85149"></div>Critical / War</div>
+        <div class="lr"><div class="ld" style="background:#f0883e"></div>High Risk</div>
+        <div class="lr"><div class="ld" style="background:#39d353"></div>Scope Country</div>
+      </div>
+      <div class="mz"><div class="zb" onclick="zm(1.3)">+</div><div class="zb" onclick="zm(.77)">−</div><div class="zb" onclick="zr()" style="font-size:10px">⟳</div></div>
+    </div>
+    <div class="geo-kpis">
+      <div class="kpi"><div class="kl">Critical Zones</div><div class="kv" style="color:var(--red)">3</div><div class="ks">Active conflicts</div></div>
+      <div class="kpi"><div class="kl">High Risk</div><div class="kv" style="color:var(--orange)">5</div><div class="ks">Elevated tensions</div></div>
+      <div class="kpi"><div class="kl">Scope Countries</div><div class="kv" style="color:var(--green)">14</div><div class="ks">Vetoquinol operations</div></div>
+      <div class="kpi"><div class="kl">Procurement Impact</div><div class="kv" style="color:var(--purple)">+4.8%</div><div class="ks">Base case 2026</div></div>
+    </div>
+  </div>
+  <div id="geo-right">
+    <div class="rph" style="flex-direction:column;gap:5px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span><span class="live-dot"></span>Active Risks</span>
+      <button class="rfr-btn" id="geo-btn" onclick="auRefreshGeo()" style="font-size:9px;padding:3px 8px">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+    <span id="geo-ts" style="font-size:9px;color:var(--text3);font-family:var(--mono)">Opens → auto-refreshes</span>
+  </div>
+
+    <div class="rcard high" data-geo="hormuz" onclick="toggleCard(this)">
+      <div class="rch"><div class="rci high"><svg viewBox="0 0 24 24" fill="var(--red)"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div><div><div class="rct">US–Israel War on Iran · Hormuz</div><div class="rcl high">🔴 CRITICAL — Active 28 Feb 2026</div></div></div>
+      <div class="rcd">US-Israeli strikes · Strait of Hormuz blocked 8+ weeks · Qatar LNG force majeure</div>
+      <div class="rcs"><div class="rcsl">Countries Involved</div><div class="cpills"><span class="cp">USA</span><span class="cp">Israel</span><span class="cp">Iran</span><span class="cp">Qatar</span><span class="cp">Iraq</span><span class="cp">UAE</span><span class="cp">Saudi</span></div></div>
+      <div class="rcs"><div class="rcsl">Impacted Categories</div><div class="tags"><span class="tag te">Énergie</span><span class="tag tm">Ocean Freight</span><span class="tag tl">Air Freight</span><span class="tag tc">Chemicals</span><span class="tag tp">APIs Pharma</span></div></div>
+      <div class="sc-panel">
+        <div class="sc-panel-title">Confirmed impacts on Vetoquinol procurement categories</div>
+        <div class="sc-impacts">
+          <div class="sc-imp-row"><span>🛢 Brent crude</span><span class="up">+55% · ~$95–105/bbl</span></div>
+          <div class="sc-imp-row"><span>🔥 EU Gas (TTF)</span><span class="up">Spiked €70+ · ~€42 currently</span></div>
+          <div class="sc-imp-row"><span>🚢 Ocean Freight (FBX)</span><span class="up">Transpacific +40% · Asia-EU +20%</span></div>
+          <div class="sc-imp-row"><span>✈️ Air freight S.Asia-EU</span><span class="up">$4.17/kg · +62% vs pré-guerre</span></div>
+          <div class="sc-imp-row"><span>💊 Vet. pharma APIs</span><span class="up">+4–8 wk delays · Gulf routes blocked</span></div>
+          <div class="sc-imp-row"><span>🚛 Road diesel</span><span class="up">+30% · $4/gallon US</span></div>
+        </div>
+        <div class="sc-row" style="margin-top:7px">
+          <div class="sc-box opt"><div class="sv">+6%</div><div class="sl">Ceasefire</div><div class="sd">Hormuz reopens Q2 · prices ease</div></div>
+          <div class="sc-box bas"><div class="sv">+14%</div><div class="sl">Prolongé</div><div class="sd">Closure through Q3 · structural shock</div></div>
+          <div class="sc-box pes"><div class="sv">+25%</div><div class="sl">Escalade</div><div class="sd">Regional spread · oil $150+ · recession</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rcard high" data-geo="ukraine" onclick="toggleCard(this)">
+      <div class="rch"><div class="rci high"><svg viewBox="0 0 24 24" fill="var(--red)"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div><div><div class="rct">Russia–Ukraine War</div><div class="rcl high">High — Year 4 · Ongoing</div></div></div>
+      <div class="rcd">4th year · EU bans Russian LNG 18 Mar 2026 · New US/Qatar capacity mid-2026</div>
+      <div class="rcs"><div class="rcsl">Countries</div><div class="cpills"><span class="cp">Ukraine</span><span class="cp">Russia</span><span class="cp">Belarus</span><span class="cp">EU/NATO</span></div></div>
+      <div class="rcs"><div class="rcsl">Categories</div><div class="tags"><span class="tag te">Énergie</span><span class="tag ta">Agriculture</span><span class="tag tl">Rail</span></div></div>
+      <div class="sc-panel">
+        <div class="sc-panel-title">Confirmed impacts</div>
+        <div class="sc-impacts">
+          <div class="sc-imp-row"><span>🔥 EU Residential Gas</span><span class="up">+24% vs Nov 2021 · Warsaw +88%</span></div>
+          <div class="sc-imp-row"><span>⚡ EU Electricity</span><span class="up">+38% vs Jan 2021 · Paris +21%</span></div>
+          <div class="sc-imp-row"><span>🚂 Eastern Rail (Poland site)</span><span class="up">Rerouting costs +8–12%</span></div>
+          <div class="sc-imp-row"><span>👷 Labour Poland</span><span class="up">Wage inflation +6–8%</span></div>
+          <div class="sc-imp-row"><span>New LNG capacity</span><span class="dn">Gas -15–25% H2 2026 possible</span></div>
+        </div>
+        <div class="sc-row" style="margin-top:7px">
+          <div class="sc-box opt"><div class="sv">-4%</div><div class="sl">Paix</div><div class="sd">Gas corridors reopen</div></div>
+          <div class="sc-box bas"><div class="sv">+2%</div><div class="sl">Status quo</div><div class="sd">LNG diversification holds</div></div>
+          <div class="sc-box pes"><div class="sv">+8%</div><div class="sl">Escalade</div><div class="sd">Russia cuts all gas · NATO</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rcard high" data-geo="tariffs" onclick="toggleCard(this)">
+      <div class="rch"><div class="rci high"><svg viewBox="0 0 24 24" fill="var(--red)"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div><div><div class="rct">US Trade War — Tariffs</div><div class="rcl high">High — Summit held · no confirmed tariff rollback</div></div></div>
+      <div class="rcd">Beijing Summit 14–16 May concluded · Trump: "tariffs not discussed" · China: agreement in principle · official contradiction</div>
+      <div class="rcs"><div class="rcsl">Countries</div><div class="cpills"><span class="cp">USA</span><span class="cp">China</span><span class="cp">Canada</span><span class="cp">Mexico</span><span class="cp">EU</span></div></div>
+      <div class="rcs"><div class="rcsl">Categories</div><div class="tags"><span class="tag tp">APIs Pharma</span><span class="tag tl">Logistics</span><span class="tag tm">Océan</span><span class="tag tt">Trade</span></div></div>
+      <div class="sc-panel">
+        <div class="sc-panel-title">Post-Summit 14–16 May 2026 — What is confirmed</div>
+        <div class="sc-impacts">
+          <div class="sc-imp-row"><span>📦 Consumables Chine</span><span class="up">Tariffs 145% maintained — no official reduction announced</span></div>
+          <div class="sc-imp-row"><span>💊 Pharma APIs Chine</span><span class="up">+8–15% · Section 301 still active · semiconductors unresolved</span></div>
+          <div class="sc-imp-row"><span>🌾 Agri deal</span><span class="dn">US beef + poultry authorized · soybeans · Boeing · rare earths (partial)</span></div>
+          <div class="sc-imp-row"><span>🏛 Trade councils</span><span class="md">Created in principle · "discussion forum" · timeline not set</span></div>
+          <div class="sc-imp-row"><span>🇲🇽 Mexico</span><span class="up">PMI 46.3 — 25% tariffs maintained · no easing</span></div>
+          <div class="sc-imp-row"><span>🇷🇺 Putin in Beijing 19–20 May</span><span class="up">RU-CN visit post-summit · complicates US position</span></div>
+        </div>
+        <div class="sc-row" style="margin-top:7px">
+          <div class="sc-box opt"><div class="sv">-3%</div><div class="sl">Rollback H2</div><div class="sd">Trade councils → concrete reductions by Q3</div></div>
+          <div class="sc-box bas"><div class="sv">+5%</div><div class="sl">Status quo</div><div class="sd">Tariffs maintained · source rerouting · persistent ambiguity</div></div>
+          <div class="sc-box pes"><div class="sv">+15%</div><div class="sl">Breakdown</div><div class="sd">EU joins · accelerated decoupling · APIs +30%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rcard medium" data-geo="taiwan" onclick="toggleCard(this)">
+      <div class="rch"><div class="rci medium"><svg viewBox="0 0 24 24" fill="var(--orange)"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div><div><div class="rct">Taiwan Strait</div><div class="rcl medium">Medium — Summit held · ambiguous results</div></div></div>
+      <div class="rcd">Trump–Xi Summit Beijing 14–16 May 2026 — concluded · no joint statement · limited results on Taiwan</div>
+      <div class="rcs"><div class="rcsl">Countries</div><div class="cpills"><span class="cp">China</span><span class="cp">Taiwan</span><span class="cp">USA</span><span class="cp">Japan</span></div></div>
+      <div class="rcs"><div class="rcsl">Categories</div><div class="tags"><span class="tag tp">APIs</span><span class="tag tm">Maritime</span><span class="tag tc">Rare Earths</span></div></div>
+      <div class="sc-panel">
+        <div class="sc-panel-title">Post-Summit 14–16 May 2026 — Actual results (sources: SCMP, Bloomberg, CNBC)</div>
+        <div class="sc-impacts">
+          <div class="sc-imp-row"><span>🤝 Trade agreement</span><span class="md">Trade &amp; investment councils created · "principles" of reciprocal tariff reduction</span></div>
+          <div class="sc-imp-row"><span>🌾 Agri &amp; Aircraft</span><span class="dn">Agricultural deal (US beef, poultry) + Boeing aircraft purchase confirmed</span></div>
+          <div class="sc-imp-row"><span>⛏ Rare Earths</span><span class="dn">US: China agrees on yttrium, scandium, neodymium · Beijing: unconfirmed</span></div>
+          <div class="sc-imp-row"><span>🛃 Tariffs</span><span class="up">Trump: "not discussed" · China: agreement in principle · Official contradiction</span></div>
+          <div class="sc-imp-row"><span>🇹🇼 Taiwan $14B arms sale</span><span class="up">Trump: "very good negotiating card" — tension maintained</span></div>
+          <div class="sc-imp-row"><span>💻 Semiconductors / tech</span><span class="up">Issues deferred — export restrictions unresolved</span></div>
+          <div class="sc-imp-row"><span>📊 Market reaction</span><span class="md">Bloomberg: "yawn" · more ceremony than substance</span></div>
+        </div>
+        <div class="sc-row" style="margin-top:7px">
+          <div class="sc-box opt"><div class="sv">+1%</div><div class="sl">Stabilisation</div><div class="sd">Risk premium absorbed · agricultural deals hold</div></div>
+          <div class="sc-box bas"><div class="sv">+3%</div><div class="sl">Ambiguity</div><div class="sd">Tariffs unresolved · semiconductors pending</div></div>
+          <div class="sc-box pes"><div class="sv">+18%</div><div class="sl">Breakdown</div><div class="sd">Taiwan escalation · APIs +30–50% · freight collapses</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rcard low" data-geo="sudan" onclick="toggleCard(this)">
+      <div class="rch"><div class="rci low"><svg viewBox="0 0 24 24" fill="var(--green)"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div><div><div class="rct">Sudan / Sahel</div><div class="rcl low">Medium — Watch List</div></div></div>
+      <div class="rcd">Sudan #1 most likely conflict 2026 (CFR) · 9 African conflicts in global top 30</div>
+      <div class="rcs"><div class="rcsl">Countries</div><div class="cpills"><span class="cp">Sudan</span><span class="cp">Mali</span><span class="cp">Niger</span><span class="cp">Somalia</span></div></div>
+      <div class="rcs"><div class="rcsl">Categories</div><div class="tags"><span class="tag ta">Raw materials</span><span class="tag tl">Logistics</span></div></div>
+      <div class="sc-panel">
+        <div class="sc-panel-title">Limited Vetoquinol impact today</div>
+        <div class="sc-impacts">
+          <div class="sc-imp-row"><span>Raw materials</span><span class="md">Monitor — limited impact</span></div>
+          <div class="sc-imp-row"><span>Logistics régionale</span><span class="md">Indirect disruption risk</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PMI ═══ -->
+<div id="pg-pmi" class="page"><div class="scroll">
+  <div class="page-title">PMI Manufacturing</div>
+  <div class="page-sub">Purchasing Managers Index · April 2026 (latest actuals) · Expansion threshold: 50.0</div>
+  <div class="pmi-grid" id="pmi-grid"></div>
+  <div class="chart-card"><h3>Historical PMI Trend — Quarterly 2024–Q1 2026</h3><div class="leg-row" id="pmi-leg"></div><div class="cw" style="height:200px"><canvas id="pmiC"></canvas></div></div>
+  <div class="chart-card"><h3>PMI Snapshot — March 2026 vs threshold 50</h3><div class="cw" style="height:190px"><canvas id="pmiBar"></canvas></div></div>
+</div></div>
+
+<!-- ═══ COST ═══ -->
+<div id="pg-cost" class="page"><div class="scroll">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div class="page-title">Cost Indices by Country</div>
+      <div class="upd-row" style="margin-bottom:4px">
+      <span>Indices · <span id="idx-ts" style="font-family:var(--mono)">monthly auto-refresh</span></span>
+      <button class="rfr-btn" id="idx-btn" onclick="auRefreshIdx(true)">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:2px">Base 100 = 2019 · A = Actual · E = Estimate · F = Forecast · Sources: EIA STEO May 2026, Statista, Freightos FBX</div>
+    </div>
+    <select id="csel" onchange="renderCost()">
+      <option>France</option><option>Germany</option><option>Spain</option><option>Belgium</option>
+      <option>Italy</option><option>Poland</option><option>USA</option><option>Canada</option>
+      <option>Mexico</option><option>Brazil</option><option>India</option><option>China</option>
+      <option>Japan</option><option>Australia</option>
+    </select>
+  </div>
+  <div id="cost-out"></div>
+</div></div>
+
+<!-- ═══ SOURCES ═══ -->
+<div id="pg-src" class="page"><div class="scroll">
+  <div class="page-title" style="margin-bottom:2px">Sources & Protocol</div>
+  <div class="page-sub" style="margin-bottom:12px">Official sources by category and country · See Excel file for full update protocol</div>
+  <div class="src-grid" id="src-grid"></div>
+</div></div>
+
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ══ DATA ══ */
+const CATS_ORDERED=[
+  {k:'inflation',l:'General Inflation',icon:'💰'},
+  {k:'electricity',l:'Electricity',icon:'⚡'},
+  {k:'gas',l:'Natural Gas',icon:'🔥'},
+  {k:'oil',l:'Oil / Brent',icon:'🛢'},
+  {k:'ocean',l:'Ocean Freight',icon:'🚢'},
+  {k:'rail',l:'Transport ferroviaire',icon:'🚂'},
+  {k:'road',l:'Road Transport',icon:'🚛'},
+  {k:'labor',l:'Main d\'œuvre',icon:'👷'},
+  {k:'marketing',l:'Marketing',icon:'📣'},
+  {k:'consumables',l:'Vet. Consumables',icon:'📦'},
+];
+const COLS={electricity:'#f4a261',gas:'#e63946',oil:'#3d5a80',rail:'#6a994e',road:'#457b9d',ocean:'#00b4d8',marketing:'#9b5de5',labor:'#f72585',consumables:'#4cc9f0',inflation:'#39d353'};
+const YEARS_ALL=['2019','2020','2021','2022','2023','2024','2025A','2026F','2027F'];
+const YEARS_YOY=['2020','2021','2022','2023','2024','2025A','2026F','2027F'];
+
+const D={
+  France:{inflation:[100,100.5,102.1,107.4,112.7,115.3,116.3,118.3,120.9],electricity:[100,98,105,280,215,148,135,148,138],gas:[100,92,145,380,290,175,162,192,175],oil:[100,66,111,155,128,126,108,148,123],rail:[100,101,103,106,110,114,118,122,126],road:[100,98,103,116,121,123,126,131,134],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,98,101,105,109,113,117,121,126],labor:[100,101,103,107,112,115,117,120,123],consumables:[100,108,118,128,130,126,122,126,124]},
+  Germany:{inflation:[100,100.5,103.7,111.9,118.5,121.1,123.6,127.1,130.3],electricity:[100,99,112,417,280,165,148,225,195],gas:[100,90,160,420,310,185,172,198,180],oil:[100,66,111,155,128,126,108,148,123],rail:[100,98,100,104,110,118,124,130,136],road:[100,97,104,120,126,129,132,138,141],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,96,100,105,110,115,119,124,129],labor:[100,101,103.5,108.7,115.3,120.2,125.0,130.0,134.5],consumables:[100,108,120,132,134,128,124,128,126]},
+  Spain:{inflation:[100,100.2,103.3,112.0,116.0,119.2,121.7,125.2,128.3],electricity:[100,100,148,310,195,140,128,148,135],gas:[100,92,148,395,285,168,155,185,168],oil:[100,66,111,155,128,126,108,148,123],rail:[100,99,102,107,113,118,123,128,133],road:[100,98,105,118,124,126,129,134,137],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,95,100,105,110,115,120,125,130],labor:[100,101.5,104.5,110.2,116.8,120.3,122.8,126.5,130.3],consumables:[100,106,116,128,130,124,120,124,122]},
+  Belgium:{inflation:[100,100.4,103.6,113.2,115.9,120.8,123.8,127.5,131.0],electricity:[100,100,115,380,250,155,140,168,152],gas:[100,93,148,395,285,172,158,188,172],oil:[100,66,111,155,128,126,108,148,123],rail:[100,100,102,106,111,116,121,126,131],road:[100,98,104,117,122,125,128,133,136],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,96,101,107,112,117,122,127,132],labor:[100,101.5,104.5,109.7,115.7,120.1,124.1,128.4,132.5],consumables:[100,108,118,130,132,126,122,126,124]},
+  Italy:{inflation:[100,100,101.9,110.8,117.3,118.3,120.1,122.6,125.1],electricity:[100,98,140,380,255,158,142,195,172],gas:[100,91,145,405,295,178,162,195,178],oil:[100,66,111,155,128,126,108,148,123],rail:[100,99,101,106,111,116,121,126,131],road:[100,97,103,116,121,124,127,132,135],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,95,100,105,110,115,119,124,129],labor:[100,101.5,103.5,108.2,113.6,117.9,121.2,124.8,128.5],consumables:[100,106,115,126,128,122,118,123,121]},
+  Poland:{inflation:[100,103.4,108.7,124.4,138.6,143.6,150.5,158.3,165.5],electricity:[100,103,112,195,205,175,162,188,175],gas:[100,98,138,380,295,192,175,202,185],oil:[100,66,111,155,128,126,108,148,123],rail:[100,101,104,110,118,126,133,140,146],road:[100,99,106,125,132,136,140,146,149],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,97,102,108,114,119,124,130,136],labor:[100,102,110.2,125.6,143.7,163.5,181.8,198.2,212.0],consumables:[100,108,118,132,138,132,128,133,130]},
+  USA:{inflation:[100,101.2,106.0,114.5,119.2,122.6,125.6,129.8,133.7],electricity:[100,100,103,112,116,118,120,124,126],gas:[100,88,125,165,110,105,102,115,108],oil:[100,63,110,155,127,122,105,146,120],rail:[100,98,102,112,118,122,126,130,133],road:[100,96,108,132,136,135,138,145,148],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,96,103,112,118,124,130,136,142],labor:[100,102.5,107.1,113.5,119.7,124.7,128.9,134.1,138.8],consumables:[100,108,122,138,138,130,126,134,131]},
+  Canada:{inflation:[100,100.7,104.1,111.2,115.5,118.3,120.8,124.2,127.3],electricity:[100,100,103,108,112,115,118,122,125],gas:[100,88,118,148,122,112,108,122,112],oil:[100,63,110,155,127,122,105,146,120],rail:[100,99,102,109,114,118,122,126,130],road:[100,97,104,120,126,128,132,140,144],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,96,102,108,114,120,125,130,135],labor:[100,102,105.5,110.8,116.3,120.7,124.4,128.7,132.8],consumables:[100,107,118,130,132,126,122,130,128]},
+  Mexico:{inflation:[100,103.4,109.3,117.7,123.7,129.5,134.4,140.0,145.6],electricity:[100,102,106,115,122,130,136,148,155],gas:[100,95,110,148,132,128,125,145,135],oil:[100,63,110,155,127,122,105,146,120],rail:[100,100,103,110,116,122,128,134,140],road:[100,99,106,122,130,134,138,148,155],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,96,101,108,114,120,126,132,138],labor:[100,104,111.3,124.7,142.2,159.2,175.2,189.2,202.4],consumables:[100,107,115,128,134,130,126,132,130]},
+  Brazil:{inflation:[100,103.2,111.8,122.2,127.8,133.9,140.7,148.4,155.5],electricity:[100,104,110,120,128,135,142,155,162],gas:[100,96,108,138,128,122,118,138,128],oil:[100,63,110,155,127,122,105,146,120],rail:[100,100,103,110,116,122,128,134,140],road:[100,99,108,128,135,138,142,152,158],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,96,102,108,115,122,128,135,142],labor:[100,105,113.4,127.0,142.2,153.6,164.4,175.1,185.6],consumables:[100,108,118,132,136,130,126,132,130]},
+  India:{inflation:[100,106.2,111.6,119.1,125.5,131.5,137.9,145.9,153.5],electricity:[100,101,104,112,118,125,132,140,148],gas:[100,97,108,138,122,118,115,142,132],oil:[100,63,110,155,127,122,105,148,120],rail:[100,100,102,106,110,114,118,122,126],road:[100,99,105,120,128,132,136,148,155],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,97,102,108,115,121,127,133,140],labor:[100,103,108.2,116.8,127.3,138.0,149.3,160.5,171.7],consumables:[100,105,112,122,126,120,116,122,120]},
+  China:{inflation:[100,102.5,103.4,105.5,105.7,105.9,106.1,107.2,108.5],electricity:[100,100,102,110,113,115,118,122,125],gas:[100,98,105,128,115,112,110,125,118],oil:[100,63,110,155,127,122,105,146,120],rail:[100,99,101,104,107,110,113,116,119],road:[100,98,102,112,116,119,122,127,131],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,97,102,107,112,116,120,125,130],labor:[100,102.5,107.6,115.2,122.1,128.8,135.1,141.9,148.3],consumables:[100,102,108,116,118,112,108,112,110]},
+  Japan:{inflation:[100,99.8,99.5,102.0,105.3,108.1,111.1,114.4,117.3],electricity:[100,99,105,135,148,152,145,172,158],gas:[100,97,115,185,195,168,155,188,172],oil:[100,63,110,155,127,122,105,148,120],rail:[100,99,100,103,106,108,111,114,117],road:[100,98,102,112,118,120,123,130,134],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,96,101,105,109,113,117,122,127],labor:[100,100.5,102.0,105.1,109.3,113.7,117.7,122.4,126.7],consumables:[100,103,110,120,124,118,114,120,118]},
+  Australia:{inflation:[100,100.9,103.7,110.5,114.7,118.4,121.2,124.6,127.7],electricity:[100,100,104,118,130,135,130,138,133],gas:[100,97,112,162,172,148,138,155,145],oil:[100,63,110,155,127,122,105,146,120],rail:[100,100,103,107,111,115,119,123,127],road:[100,98,104,118,125,128,131,138,141],ocean:[100,108,285,692,380,138,110,143,122],marketing:[100,96,101,107,113,118,123,128,133],labor:[100,102,105.1,111.4,118.6,123.9,128.2,133.1,137.8],consumables:[100,106,114,126,130,124,120,125,123]}
+};
+
+const SRCS_COST={
+  France:{inflation:'INSEE, Trading Economics',electricity:'RTE, CRE, SDES',gas:'CRE, SDES, Eurostat nrg_pc_203',oil:'EIA Brent, OPEC',rail:'SNCF, Eurostat sts_trpr_a',road:'SDES diesel pro, INSEE IPC transport',ocean:'Freightos FBX',marketing:'INSEE CPI services CP08+CP12',labor:'Eurostat LCI lc_lci_r2_q',consumables:'FBX 40%+APIs China 30%+CPI 20%+tariffs 10%'},
+  Germany:{inflation:'Destatis 61111-0002',electricity:'Eurostat nrg_pc_205 bande IC (DE)',gas:'Eurostat nrg_pc_203 (DE)',oil:'EIA Brent',rail:'DB, Eurostat sts_trpr_a',road:'EC Weekly Oil Bulletin diesel HT',ocean:'Freightos FBX',marketing:'Destatis CPI services',labor:'Eurostat LCI (DE)',consumables:'FBX+APIs+CPI+tariffs'},
+  Spain:{inflation:'INE, Eurostat HICP',electricity:'Eurostat nrg_pc_205 (ES) · Mécanisme ibérique',gas:'Eurostat nrg_pc_203 (ES)',oil:'EIA Brent',rail:'Renfe, Eurostat',road:'EC Weekly Oil Bulletin (ES)',ocean:'Freightos FBX',marketing:'INE CPI services',labor:'Eurostat LCI (ES)',consumables:'FBX+APIs+CPI+tariffs'},
+  Belgium:{inflation:'Statbel, Eurostat HICP',electricity:'Eurostat nrg_pc_205 (BE) · CREG',gas:'Eurostat nrg_pc_203 (BE)',oil:'EIA Brent',rail:'SNCB, Eurostat',road:'EC Weekly Oil Bulletin (BE)',ocean:'Freightos FBX',marketing:'Statbel CPI services',labor:'Eurostat LCI (BE)',consumables:'FBX+APIs+CPI+tariffs'},
+  Italy:{inflation:'ISTAT, Eurostat HICP',electricity:'Eurostat nrg_pc_205 (IT) · Terna',gas:'Eurostat nrg_pc_203 (IT) · ARERA',oil:'EIA Brent',rail:'FS Italiane, Eurostat',road:'EC Weekly Oil Bulletin (IT)',ocean:'Freightos FBX',marketing:'ISTAT CPI services',labor:'Eurostat LCI (IT)',consumables:'FBX+APIs+CPI+tariffs'},
+  Poland:{inflation:'GUS, Eurostat HICP',electricity:'Eurostat nrg_pc_205 (PL) · PSE · GUS',gas:'Eurostat nrg_pc_203 (PL) · PGNiG',oil:'EIA Brent',rail:'PKP, Eurostat sts_trpr_a',road:'EC Weekly Oil Bulletin (PL)',ocean:'Freightos FBX',marketing:'GUS CPI services',labor:'Eurostat LCI (PL)',consumables:'FBX+APIs+CPI+tariffs'},
+  USA:{inflation:'BLS CPI-U CUUR0000SA0',electricity:'EIA Table 5.6.A industrial',gas:'EIA ng_pri_sum industrial',oil:'EIA Brent rbrtem.htm',rail:'BLS PPI PCU482110482110',road:'EIA on-highway diesel',ocean:'Freightos FBX',marketing:'BLS CPI Information series',labor:'BLS ECI CIU2010000000000A',consumables:'FBX+APIs China IQVIA+CPI+USTR tariffs'},
+  Canada:{inflation:'Statistics Canada Table 18-10-0004-01',electricity:'Statistics Canada 25-10-0015-01, NRCan',gas:'CER AECO/NIT, Statistics Canada 25-10-0063-01',oil:'EIA Brent',rail:'Transport Canada, BLS PPI proxy',road:'NRCan fuel prices',ocean:'Freightos FBX',marketing:'Statistics Canada CPI services',labor:'Statistics Canada 14-10-0204-01',consumables:'FBX+APIs+CPI+tariffs'},
+  Mexico:{inflation:'INEGI INPC inegi.org.mx',electricity:'INEGI energía, CFE',gas:'CNH Mexico, EIA Mexico',oil:'EIA Brent',rail:'INEGI SCT data',road:'INEGI precios gasolina',ocean:'Freightos FBX',marketing:'INEGI CPI services',labor:'INEGI remuneraciones medias reales',consumables:'FBX+APIs+CPI+tariffs'},
+  Brazil:{inflation:'IBGE IPCA ibge.gov.br',electricity:'ANEEL tarifs industriels aneel.gov.br',gas:'ANP Anuário Estatístico',oil:'EIA Brent',rail:'IBGE ANTT data',road:'ANP preços carburants',ocean:'Freightos FBX',marketing:'IBGE CPI services',labor:'IBGE PNADC rendimentos',consumables:'FBX+APIs+CPI+tariffs'},
+  India:{inflation:'MOSPI CPI mospi.gov.in',electricity:'CEA Annual Report cea.nic.in',gas:'PPAC APM price ppac.gov.in',oil:'EIA Brent',rail:'Indian Railways Annual Report',road:'PPAC fuel prices',ocean:'Freightos FBX',marketing:'Ministry of Commerce CPI',labor:'MOSPI ASI emoluments',consumables:'FBX+APIs+CPI+tariffs'},
+  China:{inflation:'NBS stats.gov.cn monthly CPI',electricity:'NBS China Statistical Yearbook',gas:'NBS Yearbook, NDRC',oil:'EIA Brent',rail:'China Railway NBS',road:'NDRC oil prices NBS',ocean:'Freightos FBX',marketing:'NBS CPI services',labor:'NBS average wage manufacturing',consumables:'FBX+APIs+CPI+tariffs'},
+  Japan:{inflation:'Statistics Bureau Japan stat.go.jp',electricity:'METI Monthly Report on Energy meti.go.jp',gas:'METI Monthly LNG CIF price',oil:'EIA Brent + Japan Customs',rail:'MHLW METI',road:'METI petrol prices',ocean:'Freightos FBX',marketing:'METI CPI services',labor:'MHLW Labour Cost Index mhlw.go.jp',consumables:'FBX+APIs+CPI+tariffs'},
+  Australia:{inflation:'ABS CPI 640101 abs.gov.au',electricity:'AER wholesale statistics aer.gov.au',gas:'AER Gas Market Reports + ACCC',oil:'EIA Brent',rail:'ARTC Annual Report, RBA',road:'ACCC fuel monitoring',ocean:'Freightos FBX',marketing:'ABS CPI services',labor:'ABS Wage Price Index 6345 abs.gov.au',consumables:'FBX+APIs+CPI+tariffs'}
+};
+
+let costCharts=[];
+
+function pctVal(a,b){const p=((b-a)/a*100);return{v:p,s:(p>=0?'+':'')+p.toFixed(1)+'%'};}
+function indexColor(v,i){
+  if(i===0)return'var(--text3)';
+  if(i>=6)return'var(--blue)';
+  if(v>130)return'var(--red)';
+  if(v>115)return'var(--orange)';
+  if(v>105)return'var(--yellow)';
+  if(v<98)return'var(--green)';
+  return'var(--text)';
+}
+function pctColor(p){
+  if(p>8)return'var(--red)';
+  if(p>3)return'var(--orange)';
+  if(p>1)return'var(--yellow)';
+  if(p<-1)return'var(--green)';
+  return'var(--text2)';
+}
+
+function renderCost(){
+  const country=document.getElementById('csel').value;
+  const dat=D[country];
+  const srcs=SRCS_COST[country]||{};
+  const out=document.getElementById('cost-out');
+  costCharts.forEach(c=>c.destroy());
+  costCharts=[];
+
+  let t1=`<div style="margin-bottom:18px">
+    <div style="background:var(--surface2);color:var(--text);padding:9px 13px;border-radius:var(--radius) var(--radius) 0 0;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-bottom:none">
+      <span style="font-size:12px;font-weight:700">${country} — Index values &nbsp;<span style="font-size:9px;font-weight:400;opacity:.6">Base 100 = 2019</span></span>
+      <span style="font-size:9px;opacity:.5">Source: see footnotes</span>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:0 0 var(--radius) var(--radius)">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:700px">
+      <thead><tr style="background:var(--surface2)">
+        <th style="text-align:left;padding:7px 11px;color:var(--text2);font-weight:600;font-size:9px;border-bottom:1px solid var(--border);min-width:160px">Category</th>`;
+  YEARS_ALL.forEach((y,i)=>{
+    const isEst=i>=6;
+    t1+=`<th style="text-align:right;padding:7px 9px;color:${isEst?'var(--blue)':'var(--text2)'};font-weight:${isEst?'700':'500'};font-size:9px;border-bottom:1px solid var(--border);background:${isEst?'rgba(88,166,255,.05)':'transparent'};white-space:nowrap">${y}</th>`;
+  });
+  t1+=`</tr></thead><tbody>`;
+  CATS_ORDERED.forEach((cat,ri)=>{
+    const row=dat[cat.k];
+    t1+=`<tr style="background:${ri%2===0?'transparent':'rgba(255,255,255,.015)'}">
+      <td style="padding:6px 11px;color:var(--text);font-weight:500;font-size:11px;border-bottom:1px solid var(--border2)">
+        <span style="margin-right:5px">${cat.icon}</span>${cat.l}
+      </td>`;
+    row.forEach((v,i)=>{
+      const col=indexColor(v,i);
+      const isEst=i>=6;
+      t1+=`<td style="text-align:right;padding:6px 9px;color:${col};font-weight:${isEst?'700':'400'};font-size:11px;border-bottom:1px solid var(--border2);background:${isEst?'rgba(88,166,255,.03)':'transparent'};font-family:var(--mono)">${v}</td>`;
+    });
+    t1+=`</tr>`;
+  });
+  t1+=`</tbody></table></div>
+    <div style="font-size:8px;color:var(--text3);padding:5px 11px;font-style:italic;background:var(--surface2);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius)">
+      ${CATS_ORDERED.map(c=>`${c.icon} ${c.l}: ${srcs[c.k]||'—'}`).join(' &nbsp;·&nbsp; ')}
+    </div>
+  </div>`;
+
+  let t2=`<div style="margin-bottom:18px">
+    <div style="background:rgba(57,211,83,.08);color:var(--text);padding:9px 13px;border-radius:var(--radius) var(--radius) 0 0;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(57,211,83,.2);border-bottom:none">
+      <span style="font-size:12px;font-weight:700">${country} — Variation annuelle (%)</span>
+      <span style="font-size:9px;color:var(--text3)">vs previous year · Red = increase · Green = decrease</span>
+    </div>
+    <div style="overflow-x:auto;border:1px solid rgba(57,211,83,.2);border-top:none;border-radius:0 0 var(--radius) var(--radius)">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:620px">
+      <thead><tr style="background:var(--surface2)">
+        <th style="text-align:left;padding:7px 11px;color:var(--text2);font-weight:600;font-size:9px;border-bottom:1px solid var(--border);min-width:160px">Category</th>`;
+  YEARS_YOY.forEach((y,i)=>{
+    const isEst=i>=5;
+    t2+=`<th style="text-align:right;padding:7px 9px;color:${isEst?'var(--blue)':'var(--text2)'};font-weight:${isEst?'700':'500'};font-size:9px;border-bottom:1px solid var(--border);background:${isEst?'rgba(88,166,255,.05)':'transparent'};white-space:nowrap">${y}</th>`;
+  });
+  t2+=`</tr></thead><tbody>`;
+  CATS_ORDERED.forEach((cat,ri)=>{
+    const row=dat[cat.k];
+    t2+=`<tr style="background:${ri%2===0?'transparent':'rgba(255,255,255,.015)'}">
+      <td style="padding:6px 11px;color:var(--text);font-weight:500;font-size:11px;border-bottom:1px solid var(--border2)">
+        <span style="margin-right:5px">${cat.icon}</span>${cat.l}
+      </td>`;
+    for(let i=1;i<row.length;i++){
+      const{v,s}=pctVal(row[i-1],row[i]);
+      const col=pctColor(v);
+      const isEst=i>=6;
+      const arrow=v>0.3?'▲':v<-0.3?'▼':'→';
+      t2+=`<td style="text-align:right;padding:6px 9px;color:${col};font-weight:${v>3||v<-1?'700':'400'};font-size:10px;border-bottom:1px solid var(--border2);background:${isEst?'rgba(88,166,255,.03)':'transparent'};font-family:var(--mono)">
+        <span style="font-size:7px">${arrow}</span>${s}
+      </td>`;
+    }
+    t2+=`</tr>`;
+  });
+  t2+=`</tbody></table></div>
+    <div style="font-size:8px;color:var(--text3);padding:5px 11px;font-style:italic;background:var(--surface2);border:1px solid rgba(57,211,83,.15);border-top:none;border-radius:0 0 var(--radius) var(--radius)">
+      YoY % = (year N ÷ year N-1 − 1) × 100 · A = Confirmed 2025 actual · E = Current estimate · F = Base case forecast · Sources: EIA STEO May 2026, Statista
+    </div>
+  </div>`;
+
+  const chartId='cc_'+Date.now();
+  const legId='cl_'+Date.now();
+  let t3=`<div style="margin-bottom:18px">
+    <div style="background:var(--surface2);color:var(--text);padding:9px 13px;border-radius:var(--radius) var(--radius) 0 0;border:1px solid var(--border);border-bottom:none">
+      <span style="font-size:12px;font-weight:700">${country} — Évolution indices 2019–2027F</span>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:14px">
+      <div id="${legId}" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px"></div>
+      <div style="position:relative;height:280px"><canvas id="${chartId}"></canvas></div>
+      <div style="font-size:8px;color:var(--text3);margin-top:7px;font-style:italic">Dashed vertical line separates actuals from estimates/forecasts</div>
+    </div>
+  </div>`;
+
+  out.innerHTML=t1+t2+t3;
+
+  const leg=document.getElementById(legId);
+  CATS_ORDERED.forEach(cat=>{
+    leg.innerHTML+=`<span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text2)">
+      <span style="width:20px;height:2px;background:${COLS[cat.k]};display:inline-block;border-radius:2px"></span>
+      ${cat.icon} ${cat.l}
+    </span>`;
+  });
+
+  const ctx=document.getElementById(chartId).getContext('2d');
+  const datasets=CATS_ORDERED.map(cat=>({
+    label:cat.l,data:dat[cat.k],borderColor:COLS[cat.k],backgroundColor:'transparent',
+    borderWidth:1.5,pointRadius:2.5,pointHoverRadius:4,tension:.3,
+    segment:{borderDash:ctx2=>ctx2.p0DataIndex>=5?[5,3]:[]}
+  }));
+  const ch=new Chart(ctx,{type:'line',data:{labels:YEARS_ALL,datasets},options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y}`}}},
+    scales:{
+      x:{ticks:{color:'var(--text3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+      y:{ticks:{color:'var(--text3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},
+         title:{display:true,text:'Index (2019 = 100)',color:'var(--text3)',font:{size:9}}}
+    }
+  }});
+  costCharts.push(ch);
+}
+
+/* ══ COUNTRY DATA ══ */
+const COUNTRY_META={
+  France:{f:'🇫🇷',r:'Western Europe',pmi:47.1,pvsprev:{pmi:48.3,energy:280,labor:107},energy24:148,labor24:115,
+    inf_monthly:[4.9,6.3,5.7,5.4,5.1,4.3,4.2,3.6,2.9,2.3,1.7,1.3],inf_src:'INSEE CPI'},
+  Germany:{f:'🇩🇪',r:'Western Europe',pmi:51.9,pvsprev:{pmi:50.8,energy:417,labor:108.7},energy24:165,labor24:120.2,
+    inf_monthly:[8.7,8.5,7.8,7.2,6.1,6.4,6.5,6.1,4.3,2.2,2.2,2.6],inf_src:'Destatis'},
+  Spain:{f:'🇪🇸',r:'Western Europe',pmi:52.8,pvsprev:{pmi:53.1,energy:310,labor:110.2},energy24:140,labor24:120.3,
+    inf_monthly:[3.1,2.8,3.2,4.1,3.8,3.4,2.9,2.4,3.5,1.8,2.4,2.8],inf_src:'INE'},
+  Belgium:{f:'🇧🇪',r:'Western Europe',pmi:49.8,pvsprev:{pmi:49.2,energy:380,labor:109.7},energy24:155,labor24:120.1,
+    inf_monthly:[6.7,6.3,5.5,4.7,4.0,4.9,4.8,4.3,3.2,3.6,4.3,3.8],inf_src:'Statbel'},
+  Italy:{f:'🇮🇹',r:'Southern Europe',pmi:52.1,pvsprev:{pmi:51.4,energy:380,labor:108.2},energy24:158,labor24:117.9,
+    inf_monthly:[8.1,9.1,8.2,8.3,7.6,6.7,5.9,5.4,5.3,1.7,0.7,0.6],inf_src:'ISTAT'},
+  Poland:{f:'🇵🇱',r:'Central Europe',pmi:48.9,pvsprev:{pmi:49.7,energy:195,labor:125.6},energy24:175,labor24:163.5,
+    inf_monthly:[16.6,18.4,16.1,14.7,13.0,11.5,10.8,10.6,8.2,4.9,4.6,4.3],inf_src:'GUS'},
+  USA:{f:'🇺🇸',r:'North America',pmi:52.7,pvsprev:{pmi:52.4,energy:112,labor:113.5},energy24:118,labor24:124.7,
+    inf_monthly:[3.0,3.2,3.5,3.4,3.3,3.0,3.2,3.7,3.7,2.6,2.7,2.9],inf_src:'BLS CPI-U'},
+  Canada:{f:'🇨🇦',r:'North America',pmi:48.2,pvsprev:{pmi:47.8,energy:108,labor:110.8},energy24:115,labor24:120.7,
+    inf_monthly:[2.9,3.4,2.8,2.7,2.9,2.9,3.3,2.5,1.6,2.0,1.9,1.8],inf_src:'Stats Canada'},
+  Mexico:{f:'🇲🇽',r:'North America',pmi:46.3,pvsprev:{pmi:47.1,energy:115,labor:124.7},energy24:130,labor24:159.2,
+    inf_monthly:[4.9,4.5,6.2,5.5,5.8,5.2,4.6,4.6,4.7,4.7,4.2,4.7],inf_src:'INEGI INPC'},
+  Brazil:{f:'🇧🇷',r:'South America',pmi:47.8,pvsprev:{pmi:48.5,energy:120,labor:127.0},energy24:135,labor24:153.6,
+    inf_monthly:[5.8,5.6,4.0,3.7,3.2,3.4,4.5,4.6,5.4,4.6,4.8,4.7],inf_src:'IBGE IPCA'},
+  India:{f:'🇮🇳',r:'South Asia',pmi:53.9,pvsprev:{pmi:56.9,energy:112,labor:116.8},energy24:125,labor24:138.0,
+    inf_monthly:[5.1,5.1,4.9,4.8,4.2,4.8,3.5,3.7,5.5,5.5,5.5,5.7],inf_src:'MOSPI'},
+  China:{f:'🇨🇳',r:'East Asia',pmi:51.2,pvsprev:{pmi:52.1,energy:110,labor:115.2},energy24:115,labor24:128.8,
+    inf_monthly:[2.1,1.0,0.7,0.1,0.2,-0.2,0.3,-0.3,0.0,0.3,0.2,0.1],inf_src:'NBS'},
+  Japan:{f:'🇯🇵',r:'East Asia',pmi:49.4,pvsprev:{pmi:50.3,energy:135,labor:105.1},energy24:152,labor24:113.7,
+    inf_monthly:[4.0,3.3,3.3,3.2,3.2,3.3,2.8,3.0,3.0,2.3,2.5,3.6],inf_src:'Statistics Bureau'},
+  Australia:{f:'🇦🇺',r:'Asia-Pacific',pmi:51.8,pvsprev:{pmi:52.4,energy:118,labor:111.4},energy24:135,labor24:123.9,
+    inf_monthly:[3.4,3.6,3.6,3.6,3.8,3.8,3.8,3.5,2.8,2.1,2.3,2.4],inf_src:'ABS'}
+};
+
+
+/* ══ FORECAST ROWS ══ */
+
+/* ══ SOURCES ══ */
+const SRCS_DATA=[
+  {cat:'🌍 Geopolitics & Risks',items:[['CFR Conflicts to Watch 2026','cfr.org/global-conflict-tracker'],['WEF Global Risks Report 2026','wef.ch/risks'],['Stimson Center Top Risks 2026','stimson.org'],['Eurasia Group Top Risks 2026','eurasiagroup.net'],['Wellington Geopolitics 2026','wellington.com']]},
+  {cat:'⚡ EU Energy',items:[['Eurostat nrg_pc_205 (Electricity)','ec.europa.eu/eurostat'],['Eurostat nrg_pc_203 (Gas)','ec.europa.eu/eurostat'],['SDES France Elec + Gas','statistiques.developpement-durable.gouv.fr'],['EIA Brent Crude Monthly','eia.gov/dnav/pet/hist/rbrtem.htm'],['IEA Oil Market Report Apr 2026','iea.org/reports']]},
+  {cat:'🚢 Ocean Freight',items:[['Freightos Baltic Index (FBX)','fbx.freightos.com'],['FBX11 Asie-Europe','fbx.freightos.com/freight-index/FBX11'],['FBX01 Transpacifique','fbx.freightos.com/freight-index/FBX01'],['FBX22 EU-US','fbx.freightos.com/freight-index/FBX22'],['World Bank Freight data','worldbank.org']]},
+  {cat:'📊 PMI Manufacturing',items:[['S&P Global PMI (EU, global)','spglobal.com/marketintelligence/en/mi/research-analysis/pmi'],['ISM Manufacturing USA','ismworld.org'],['HSBC India PMI','hsbc.com'],['NBS China PMI','stats.gov.cn'],['HCOB Germany PMI','hcob-bank.de']]},
+  {cat:'💰 CPI Inflation',items:[['INSEE France — Série 001763851','insee.fr'],['BLS USA — CPI-U CUUR0000SA0','bls.gov/cpi'],['Destatis Germany — 61111-0002','destatis.de'],['Eurostat HICP prc_hicp_midx','ec.europa.eu/eurostat'],['INEGI Mexico INPC','inegi.org.mx'],['IBGE Brazil IPCA','ibge.gov.br'],['MOSPI India CPI','mospi.gov.in'],['NBS China CPI','stats.gov.cn'],['Statistics Bureau Japan','stat.go.jp'],['ABS Australia CPI 640101','abs.gov.au']]},
+  {cat:'👷 Main-d\'œuvre',items:[['Eurostat LCI lc_lci_r2_q','ec.europa.eu/eurostat'],['BLS ECI CIU2010000000000A','bls.gov/eci'],['ABS Wage Price Index 6345','abs.gov.au'],['Bundesbank Germany','bundesbank.de'],['MHLW Japan Labour Cost Index','mhlw.go.jp']]},
+  {cat:'🚛 Road Transport',items:[['EC Weekly Oil Bulletin (EU diesel)','energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en'],['EIA On-Highway Diesel USA','eia.gov/petroleum/gasdiesel'],['SDES Prix gazole pro France','statistiques.developpement-durable.gouv.fr'],['NRCan Canada fuel','nrcan.gc.ca'],['PPAC India fuel prices','ppac.gov.in']]},
+  {cat:'📦 Consumables vet. pharma',items:[['IQVIA API prices China','iqvia.com'],['USTR Section 301 tariffs','ustr.gov/issue-areas/enforcement/section-301-investigations'],['BLS PPI Pharma PCU325412','bls.gov'],['Freightos FBX (40% weight)','fbx.freightos.com'],['ECB Exchange Rates SDW','sdw.ecb.europa.eu']]},
+];
+
+function buildSrc(){
+  window.sB=true;
+  const g=document.getElementById('src-grid');
+  if(!g)return;
+  SRCS_DATA.forEach(s=>{
+    g.innerHTML+=`<div class="src-card"><h3>${s.cat}</h3>${s.items.map(([k,v])=>`<div class="src-item"><span>${k}</span><span class="sl">${v}</span></div>`).join('')}</div>`;
+  });
+}
+
+/* ══ PMI BUILD ══ */
+function buildPMI(){
+  window.pmiBuilt=true;
+  const PMI_DATA=[
+    {c:'France',f:'🇫🇷',v:52.8,p:50.2,s:'exp',src:'S&P Global · Apr 2026',desc:'Strongest since May 2022. Client precautionary stockpiling drove orders into expansion for first time in nearly 4 years. Delivery delays at 3-year high. Input prices accelerating.'},
+    {c:'Germany',f:'🇩🇪',v:52.5,p:51.9,s:'exp',src:'HCOB · Apr 2026',desc:'Expansion continues on defence spending and infrastructure stimulus. Input cost inflation sharpest across Eurozone. Business confidence fell to 17-month low despite output gains.'},
+    {c:'Spain',f:'🇪🇸',v:53.5,p:52.8,s:'exp',src:'S&P Global · Apr 2026',desc:'Fresh upturn. Export orders rose for first time since Feb 2022. Stockpiling driving new orders. Delivery times longest since July 2022.'},
+    {c:'Belgium',f:'🇧🇪',v:50.5,p:49.8,s:'exp',src:'S&P Global · Apr 2026',desc:'Crossed into expansion. Pharma and chemical sectors benefiting from precautionary purchasing. Middle East logistics uncertainty persists.'},
+    {c:'Italy',f:'🇮🇹',v:52.1,p:52.1,s:'exp',src:'S&P Global · Apr 2026',desc:'Steady expansion. Factory conditions improved at faster pace. Fashion, food and machinery exports driving activity.'},
+    {c:'Poland',f:'🇵🇱',v:48.5,p:48.9,s:'con',src:'S&P Global · Apr 2026',desc:'Contraction deepens. US tariff headwinds and energy costs remain key drag. No relief from Eurozone stockpiling impulse due to export mix.'},
+    {c:'USA',f:'🇺🇸',v:54.5,p:52.3,s:'exp',src:'S&P Global · Apr 2026',desc:'Strongest expansion since May 2022. Stockpiling ahead of Middle East supply disruptions drove new orders to 4-year high. Caution: S&P Global flags this boost may be temporary as stock building fades.'},
+    {c:'Canada',f:'🇨🇦',v:48.8,p:48.2,s:'con',src:'S&P Global · Apr 2026',desc:'Slight improvement but still contracting. US 25% tariffs remain dominant headwind. Marginal recovery in non-US export channels.'},
+    {c:'Mexico',f:'🇲🇽',v:46.5,p:46.3,s:'con',src:'S&P Global · Apr 2026',desc:'Deepest contraction globally. US 25% tariffs crushing manufacturing exports. No sign of relief without a tariff rollback.'},
+    {c:'Brazil',f:'🇧🇷',v:47.2,p:47.8,s:'con',src:'S&P Global · Apr 2026',desc:'Contraction continues. US tariff fallout disrupting export flows. High domestic interest rates compounding pressure.'},
+    {c:'India',f:'🇮🇳',v:54.8,p:53.9,s:'exp',src:'HSBC · Apr 2026',desc:'Rebound. Precautionary purchasing and record export orders driving acceleration. Middle East disruptions create sourcing opportunities for Indian manufacturers.'},
+    {c:'China',f:'🇨🇳',v:51.5,p:51.2,s:'exp',src:'NBS · Apr 2026',desc:'Steady expansion. Tariff-driven diversification opening new non-US markets. Domestic stockpiling adds to output.'},
+    {c:'Japan',f:'🇯🇵',v:49.8,p:49.4,s:'neu',src:'Jibun Bank · Apr 2026',desc:'Near neutral. Slight improvement on stockpiling. Manufacturing output expanded at quickest rate since Feb 2014. Yen volatility and Middle East energy still weighing.'},
+    {c:'Australia',f:'🇦🇺',v:52.1,p:51.8,s:'exp',src:'S&P Global · Apr 2026',desc:'Solid expansion. Mining-related manufacturing strong. Benefiting from rerouted commodity demand. Middle East war creates freight cost pressure.'}
+  ];
+  const g=document.getElementById('pmi-grid');
+  if(!g)return;
+  g.innerHTML='';
+  PMI_DATA.forEach(d=>{
+    const diff=(d.v-d.p).toFixed(1);
+    const tr=d.v>d.p?'▲ +'+diff:'▼ '+diff;
+    const tc=d.v>d.p?'var(--green)':'var(--red)';
+    g.innerHTML+=`<div class="pmic ${d.s}">
+      <div class="pmic-top"><span class="pmif">${d.f}</span><span class="pmiv ${d.s}">${d.v}</span></div>
+      <div class="pmin">${d.c}</div>
+      <div class="pmit" style="color:${tc};font-family:var(--mono)">${tr} vs prev. month</div>
+      <div class="pmi-desc">${d.desc}</div>
+      <div class="pmis">${d.src}</div>
+    </div>`;
+  });
+  const Q=['Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26','Apr 26'];
+  const hist={France:[45.4,44.0,44.9,46.1,47.2,46.8,47.5,50.2,52.8],Germany:[43.5,40.6,43.2,45.8,48.1,49.2,50.8,51.9,52.5],USA:[51.6,47.3,48.4,50.2,51.0,52.1,52.4,52.3,54.5],India:[56.5,56.4,56.4,58.8,57.5,56.2,56.9,53.9,54.8],China:[51.7,49.3,50.1,50.5,51.2,50.8,52.1,51.2,51.5]};
+  const cl=['#f85149','#3fb950','#58a6ff','#f0883e','#bc8cff'];
+  const leg=document.getElementById('pmi-leg');
+  if(leg){
+    leg.innerHTML='';
+    Object.keys(hist).forEach((c,i)=>{leg.innerHTML+=`<span class="leg-it"><span class="leg-dot" style="background:${cl[i]}"></span>${c}</span>`});
+  }
+  const pmiC=document.getElementById('pmiC');
+  if(pmiC){
+    new Chart(pmiC.getContext('2d'),{type:'line',data:{labels:Q,datasets:Object.entries(hist).map(([c,d],i)=>({label:c,data:d,borderColor:cl[i],backgroundColor:'transparent',borderWidth:2,pointRadius:2.5,tension:.3}))},options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},annotation:{annotations:{th50:{type:'line',yMin:50,yMax:50,borderColor:'rgba(240,136,62,.4)',borderWidth:1,borderDash:[4,3]}}}},
+      scales:{x:{ticks:{color:'var(--text3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},y:{min:38,max:62,ticks:{color:'var(--text3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}}
+    }});
+  }
+  const pmiBar=document.getElementById('pmiBar');
+  if(pmiBar){
+    new Chart(pmiBar.getContext('2d'),{type:'bar',data:{labels:PMI_DATA.map(d=>d.c),datasets:[{label:'PMI',data:PMI_DATA.map(d=>d.v),backgroundColor:PMI_DATA.map(d=>d.s==='exp'?'rgba(57,211,83,.7)':d.s==='con'?'rgba(248,81,73,.7)':'rgba(240,136,62,.7)'),borderRadius:4,borderSkipped:false}]},options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'var(--text2)',font:{size:9},maxRotation:45},grid:{display:false}},y:{min:40,max:60,ticks:{color:'var(--text3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}}
+    }});
+  }
+}
+
+/* ══ NAV ══ */
+const HDRS={
+  news:['Breaking News','Real-time procurement intelligence · Geopolitics & Markets · May 2026'],
+  geo:['Geopolitical Risk Map','Click a risk zone to reveal scenarios · Updated 20 May 2026'],
+  pmi:['PMI Manufacturing','Purchasing Managers Index · April 2026 (latest) · Expansion threshold: 50.0'],
+  cost:['Cost Indices','Annual index · YoY change · Base 100 = 2019'],
+  fc:['Budget 2026 & Prévision 2027','Changes vs previous year · Geopolitically adjusted · May 2026'],
+  src:['Sources & Protocol','Official sources by category and country · Monthly update protocol']
+};
+
+function nav(id,el){
+  document.querySelectorAll('.sbi').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pg-'+id).classList.add('active');
+  const h=HDRS[id]||[id,''];
+  document.getElementById('ph').textContent=h[0];
+  document.getElementById('ps').textContent=h[1];
+  if(id==='pmi'&&!window.pmiBuilt)buildPMI();
+  if(id==='pmi')setTimeout(()=>auRefreshPMI(false),800);
+  if(id==='cost')renderCost();
+  if(id==='src'&&!window.sB)buildSrc();
+  // Auto-refresh on tab visit
+  if(id==='geo') setTimeout(()=>auRefreshGeo(false), 600);
+}
+
+function toggleCard(card){
+  const was=card.classList.contains('selected');
+  document.querySelectorAll('.rcard').forEach(c=>c.classList.remove('selected'));
+  if(!was)card.classList.add('selected');
+}
+
+/* ══ MAP ══ */
+const RISK_MAP={
+  643:'high',804:'high',364:'critical',275:'critical',760:'high',
+  156:'medium',840:'medium',408:'high',887:'critical',729:'medium',466:'medium',706:'medium',
+  250:'scope',276:'scope',724:'scope',56:'scope',380:'scope',616:'scope',
+  124:'scope',484:'scope',76:'scope',356:'scope',392:'scope',36:'scope'
+};
+const RF={critical:'#f85149',high:'#f0883e',medium:'#e3b341',scope:'#39d353',default:'#21262d'};
+const RS={critical:'#da3633',high:'#cc6b2a',medium:'#b8922e',scope:'#2ea043',default:'#30363d'};
+let gMap,cScale=1;
+
+fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+  .then(r=>r.json())
+  .then(w=>{
+    const feats=topojson.feature(w,w.objects.countries);
+    const proj=d3.geoNaturalEarth1().scale(150).translate([480,250]);
+    const path=d3.geoPath(proj);
+    const svg=d3.select('#wmap');
+    gMap=svg.append('g');
+    gMap.selectAll('path').data(feats.features).join('path')
+      .attr('d',path)
+      .attr('fill',d=>RF[RISK_MAP[+d.id]]||RF.default)
+      .attr('stroke',d=>RS[RISK_MAP[+d.id]]||RS.default)
+      .attr('stroke-width',d=>RISK_MAP[+d.id]?0.7:0.3)
+      .attr('opacity',0.9)
+      .on('mouseover',function(e,d){if(RISK_MAP[+d.id])d3.select(this).attr('opacity',.65)})
+      .on('mouseout',function(){d3.select(this).attr('opacity',0.9)});
+    [[250,'FR',2.35,48.9],[276,'DE',10.4,51.2],[724,'ES',-3.7,40.4],
+     [56,'BE',4.4,50.5],[380,'IT',12.6,42.8],[616,'PL',19.1,51.9],
+     [840,'US',-98,38],[124,'CA',-95,57],[484,'MX',-102,23],
+     [76,'BR',-53,-14],[356,'IN',80,21],[156,'CN',104,35],
+     [392,'JP',138,37],[36,'AU',134,-25]]
+    .forEach(([id,lbl,lon,lat])=>{
+      const pt=proj([lon,lat]);
+      if(!pt)return;
+      gMap.append('text').attr('x',pt[0]).attr('y',pt[1])
+        .attr('text-anchor','middle').attr('dominant-baseline','middle')
+        .attr('font-size','7px').attr('font-weight','700')
+        .attr('fill',RISK_MAP[id]?'rgba(255,255,255,.9)':'#8b949e')
+        .attr('pointer-events','none').text(lbl);
+    });
+  })
+  .catch(()=>{
+    const svg=document.getElementById('wmap');
+    if(svg)svg.innerHTML='<text x="480" y="240" text-anchor="middle" font-size="14" fill="var(--text3)" font-family="sans-serif">🌍 Map requires internet</text><text x="480" y="268" text-anchor="middle" font-size="11" fill="var(--text3)" font-family="sans-serif">Risk cards are fully functional</text>';
+  });
+
+function zm(f){cScale*=f;gMap&&gMap.attr('transform',`scale(${cScale}) translate(${480*(1-cScale)/cScale},${250*(1-cScale)/cScale})`)}
+function zr(){cScale=1;gMap&&gMap.attr('transform','')}
+
+
+/* ══════════════════════════════════════════════════════
+   VETOQUINOL AUTO-UPDATE ENGINE v3
+   - Single nav() function (no override conflict)
+   - Non-destructive: never clears content before API succeeds
+   - Works via HTTP; shows static content via file://
+   ══════════════════════════════════════════════════════ */
+
+const _K={n:'vq_n4',nt:'vq_nt4',p:'vq_p4',pt:'vq_pt4',i:'vq_i4',it:'vq_it4',g:'vq_g4',gt:'vq_gt4'};
+const _TTL={n:6*36e5,p:30*864e5,i:30*864e5,g:4*36e5};
+
+const _ls=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v));}catch{return null;}};
+const _age=k=>{const t=_ls(_K[k+'t']||k);return t?Date.now()-t:Infinity;};
+const _el=id=>document.getElementById(id);
+const _ts=(id,v)=>{const e=_el(id);if(e)e.textContent=v;};
+const _fmt=t=>t?new Date(t).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+const _spin=(id,on)=>{const b=_el(id);if(b)b.classList.toggle('spin',on);};
+
+/* Claude API */
+function _getKey(){ return ''; } // key handled server-side
+
+async function _api(prompt){
+  const r = await fetch('/api/claude', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ prompt })
+  });
+  if(!r.ok) throw new Error('Server '+r.status);
+  const d = await r.json();
+  if(d.error) throw new Error(d.error);
+  return d.text || '';
+}
+
+/* ── BREAKING NEWS ── */
+async function auRefreshNews(force=false){
+  const age=_age('n');
+  if(!force&&age<_TTL.n){const c=_ls(_K.n);if(c&&c.length){_renderNews(c);_ts('bn-ts','Updated '+_fmt(_ls(_K.nt)));return;}}
+  _spin('bn-btn',true);_spin('g-btn',true);
+  _ts('bn-ts','fetching...');
+  try{
+    const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    const raw=await _api(`Today is ${today}. Search for the 5 most important developments for pharmaceutical/veterinary procurement: energy prices (Brent crude current price), ocean freight rates, geopolitical supply chain risks, trade tariffs, PMI data. Use current real data. Return ONLY a JSON array:\n[{"title":"...","summary":"1-2 sentences with specific numbers","impacts":["tag1","tag2"],"direction":"up|down|neutral","severity":"critical|high|medium|positive","icon":"⚔️|🏭|🛢|🚢|📈|📊","date":"${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})}"}]`);
+    const j=_parse(raw);
+    if(j&&j.length>=3){_ls(_K.n,j);_ls(_K.nt,Date.now());_renderNews(j);_ts('bn-ts','Updated '+_fmt(Date.now()));_ts('g-ts','Synced '+_fmt(Date.now()));}
+    else _ts('bn-ts','Data issue — static shown');
+  }catch(e){_ts('bn-ts','Offline mode');console.info('[AU] News:',e.message);}
+  finally{_spin('bn-btn',false);_spin('g-btn',false);}
+}
+
+function _renderNews(items){
+  const el=document.querySelector('#pg-news .bn-main');
+  if(!el||!items||!items.length)return;
+  el.innerHTML=items.map(i=>{
+    const s={critical:'critical',high:'high',medium:'medium',positive:'positive'}[i.severity]||'medium';
+    const pills=(i.impacts||[]).map(t=>`<span class="bn-impact ${i.direction==='up'?'up':i.direction==='down'?'dn':'neu'}">${t}</span>`).join('');
+    return`<div class="bn-card ${s}"><div class="bn-card-top"><div class="bn-card-icon">${i.icon||'📰'}</div><div class="bn-card-meta"><div class="bn-card-date">${i.severity||'medium'} · ${i.date||''}</div><div class="bn-card-title">${i.title}</div><div class="bn-card-sub">${i.summary}</div></div></div>${pills?`<div class="bn-card-impacts">${pills}</div>`:''}</div>`;
+  }).join('');
+}
+
+/* ── GEO MAP ── */
+async function auRefreshGeo(force=true){
+  const age=_age('g');
+  if(!force&&age<_TTL.g){const c=_ls(_K.g);if(c&&c.length){_applyGeo(c);_ts('geo-ts','Updated '+_fmt(_ls(_K.gt)));return;}}
+  _spin('geo-btn',true);
+  _ts('geo-ts','fetching latest status...');
+  try{
+    const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    const raw=await _api(`Today is ${today}. Search for the CURRENT status of these 4 geopolitical situations. Use latest news. Be factual with real numbers. Return ONLY a JSON array:\n[{"key":"hormuz","desc":"Current 2-sentence status with specific facts and prices","impacts":[{"label":"🛢 Brent crude","val":"current price","dir":"up"},{"label":"🚢 Ocean freight","val":"current % change vs pre-war","dir":"up"},{"label":"✈️ Air freight","val":"current $/kg","dir":"up"},{"label":"💊 Pharma APIs","val":"delivery impact","dir":"up"}],"scenarios":{"opt":{"pct":"+X%","label":"Ceasefire","desc":"2-line desc"},"bas":{"pct":"+X%","label":"Prolonged","desc":"2-line desc"},"pes":{"pct":"+X%","label":"Escalation","desc":"2-line desc"}}},{"key":"ukraine","desc":"...","impacts":[...],"scenarios":{...}},{"key":"tariffs","desc":"...","impacts":[...],"scenarios":{...}},{"key":"taiwan","desc":"...","impacts":[...],"scenarios":{...}}]`);
+    const j=_parse(raw);
+    if(j&&j.length>=3){_ls(_K.g,j);_ls(_K.gt,Date.now());_applyGeo(j);_ts('geo-ts','Updated '+_fmt(Date.now()));}
+    else _ts('geo-ts','Data issue — static shown');
+  }catch(e){_ts('geo-ts','Offline — static content');console.info('[AU] Geo:',e.message);}
+  finally{_spin('geo-btn',false);}
+}
+
+function _applyGeo(items){
+  items.forEach(item=>{
+    const card=document.querySelector(`[data-geo="${item.key}"]`);
+    if(!card)return;
+    const rcd=card.querySelector('.rcd');
+    if(rcd&&item.desc)rcd.textContent=item.desc;
+    const si=card.querySelector('.sc-impacts');
+    if(si&&item.impacts&&item.impacts.length)si.innerHTML=item.impacts.map(x=>`<div class="sc-imp-row"><span>${x.label}</span><span class="${x.dir||'md'}">${x.val}</span></div>`).join('');
+    if(item.scenarios){
+      const bs=card.querySelectorAll('.sc-box');
+      [['opt',0],['bas',1],['pes',2]].forEach(([k,i])=>{
+        const sc=item.scenarios[k];if(!sc||!bs[i])return;
+        const sv=bs[i].querySelector('.sv'),sl=bs[i].querySelector('.sl'),sd=bs[i].querySelector('.sd');
+        if(sv)sv.textContent=sc.pct;if(sl)sl.textContent=sc.label;if(sd)sd.textContent=sc.desc;
+      });
+    }
+  });
+}
+
+/* ── PMI ── */
+async function auRefreshPMI(force=false){
+  const age=_age('p');
+  if(!force&&age<_TTL.p){const c=_ls(_K.p);if(c&&c.length){_applyPMI(c);_ts('pmi-ts','Updated '+_fmt(_ls(_K.pt)));return;}}
+  _spin('pmi-btn',true);_ts('pmi-ts','fetching...');
+  try{
+    const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    const raw=await _api(`Today is ${today}. Search for the latest manufacturing PMI readings for France, Germany, Spain, Belgium, Italy, Poland, USA, Canada, Mexico, Brazil, India, China, Japan, Australia. Return ONLY a JSON array:\n[{"country":"France","flag":"🇫🇷","value":52.8,"prev":50.2,"status":"exp","source":"S&P Global","period":"Apr 2026","note":"Key driver in one sentence."}]`);
+    const j=_parse(raw);
+    if(j&&j.length>=5){_ls(_K.p,j);_ls(_K.pt,Date.now());_applyPMI(j);_ts('pmi-ts','Updated '+_fmt(Date.now()));}
+    else _ts('pmi-ts','Data issue');
+  }catch(e){_ts('pmi-ts','Offline');console.info('[AU] PMI:',e.message);}
+  finally{_spin('pmi-btn',false);}
+}
+function _applyPMI(items){
+  const g=document.getElementById('pmi-grid');
+  if(!g||!window.pmiBuilt||!items.length)return;
+  g.innerHTML=items.map(d=>{
+    const diff=(d.value-d.prev).toFixed(1),s=d.status||'neu',tc=d.value>d.prev?'var(--green)':'var(--red)';
+    return`<div class="pmic ${s}"><div class="pmic-top"><span class="pmif">${d.flag}</span><span class="pmiv ${s}">${d.value}</span></div><div class="pmin">${d.country}</div><div class="pmit" style="color:${tc};font-family:var(--mono)">${d.value>d.prev?'▲ +':'▼ '}${diff} vs prev.</div><div class="pmi-desc">${d.note||''}</div><div class="pmis">${d.source} · ${d.period}</div></div>`;
+  }).join('');
+  const pp=document.getElementById('pmi-period');if(pp&&items[0])pp.textContent=items[0].period||'Latest';
+}
+
+/* ── INDICES ── */
+async function auRefreshIdx(force=false){
+  const age=_age('i');
+  if(!force&&age<_TTL.i){const c=_ls(_K.i);if(c){_applyIdx(c);_ts('idx-ts','Updated '+_fmt(_ls(_K.it)));return;}}
+  _spin('idx-btn',true);_ts('idx-ts','fetching...');
+  try{
+    const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    const raw=await _api(`Today is ${today}. Search: (1) Brent crude current monthly average $/bbl from EIA, (2) EU average industrial electricity price €/MWh. Return ONLY JSON:\n{"brent":XX.X,"eu_elec":XX.X,"period":"Mon YYYY"}`);
+    const d=_parse(raw);
+    if(d&&d.brent){_ls(_K.i,d);_ls(_K.it,Date.now());_applyIdx(d);_ts('idx-ts','Updated '+_fmt(Date.now()));}
+    else _ts('idx-ts','Data issue');
+  }catch(e){_ts('idx-ts','Offline');console.info('[AU] Idx:',e.message);}
+  finally{_spin('idx-btn',false);}
+}
+function _applyIdx(d){
+  if(!d||!d.brent)return;
+  const idx=Math.round(d.brent/64*100);
+  Object.keys(D).forEach(c=>{if(D[c].oil)D[c].oil[6]=idx;});
+  // Update Brent display in signals panel
+  const sig=document.getElementById('sig-brent');
+  if(sig)sig.textContent=`~$${d.brent}/bbl`;
+  const cp=document.getElementById('pg-cost');
+  if(cp&&cp.classList.contains('active'))renderCost();
+}
+
+/* ── BOOT ── safe, deferred, non-blocking ── */
+window.addEventListener('load',function(){
+  // Show cached timestamps immediately
+  const nt=_ls(_K.nt),pt=_ls(_K.pt),gt=_ls(_K.gt);
+  _ts('bn-ts',nt?'Updated '+_fmt(nt):'refreshing...');
+  _ts('pmi-ts',pt?'Updated '+_fmt(pt):'pending');
+  _ts('idx-ts',_ls(_K.it)?'Updated '+_fmt(_ls(_K.it)):'pending');
+  _ts('geo-ts',gt?'Updated '+_fmt(gt):'opens → auto-refreshes');
+  if(nt)_ts('g-ts','Synced '+_fmt(nt));
+
+  // Restore cached data (non-destructive: only if cache is fresh)
+  const cn=_ls(_K.n);if(cn&&cn.length&&_age('n')<_TTL.n)setTimeout(()=>_renderNews(cn),200);
+  const cp=_ls(_K.p);if(cp&&cp.length&&_age('p')<_TTL.p)setTimeout(()=>_applyPMI(cp),500);
+  const ci=_ls(_K.i);if(ci&&_age('i')<_TTL.i)setTimeout(()=>_applyIdx(ci),400);
+
+  // Auto-refresh stale data
+  if(_age('n')>=_TTL.n)setTimeout(()=>auRefreshNews(true),1000);
+  if(_age('p')>=_TTL.p)setTimeout(()=>auRefreshPMI(false),3000);
+  if(_age('i')>=_TTL.i)setTimeout(()=>auRefreshIdx(false),4000);
+});
+</script>
+</body>
+</html>
